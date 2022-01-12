@@ -14,9 +14,8 @@ class RatingBarCustom extends StatelessWidget {
         future: FirebaseFirestore.instance.collection('rate').doc(to).get(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            double rate = snapshot.data!['value'] / snapshot.data!['count'];
             return RatingBar.builder(
-              initialRating: rate,
+              initialRating:  snapshot.data!['rate'],
               itemCount: 5,
               itemBuilder: (context, index) {
                 switch (index) {
@@ -56,7 +55,7 @@ class RatingBarCustom extends StatelessWidget {
                 if (true) {
                   setRating(rating, to);
                   Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Autenticate()));
+                      MaterialPageRoute(builder: (context) => const Autenticate()));
                 }
                 debugPrint(rating.toString());
               },

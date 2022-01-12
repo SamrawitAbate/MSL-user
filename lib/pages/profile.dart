@@ -34,7 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Scaffold(
           body: StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('Users')
+                  .collection('account')
                   .doc(widget.uid)
                   .snapshots(),
               builder: (BuildContext context,
@@ -115,11 +115,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           final fileName =
                                                               results.files
                                                                   .single.name;
-                                                          print(path);
-                                                          print(fileName);
+                                                          debugPrint(path);
+                                                          debugPrint(fileName);
                                                           uploadProfile(path!)
                                                               .then((value) =>
-                                                                  print(
+                                                                  debugPrint(
                                                                       'Done ' *
                                                                           10));
                                                         },

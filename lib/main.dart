@@ -9,14 +9,12 @@ void main() {
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Maintenance service locator',
-      theme:  ThemeData(
-        brightness: Brightness.dark,fontFamily:'Numans'
-      ),
+      theme: ThemeData(brightness: Brightness.dark, fontFamily: 'Numans'),
       home: const App()));
 }
 
 class App extends StatefulWidget {
- const App({Key? key}) : super(key: key);
+  const App({Key? key}) : super(key: key);
 
   @override
   State<App> createState() => _AppState();
@@ -54,8 +52,22 @@ class _AppState extends State<App> {
     if (!connection) {
       return Scaffold(
         backgroundColor: Colors.grey[900],
-        body: Center(
-          child: Image.asset('assets/img/offline.jpg'),
+        body: Stack(
+          children: [
+            Center(
+              child: Image.asset('assets/img/offline.jpg'),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.black12),
+                  onPressed: _checkConnectivityState,
+                  child: const Icon(
+                    Icons.restart_alt,
+                    size: 30,
+                  )),
+            )
+          ],
         ),
       );
     }
