@@ -127,6 +127,13 @@ class _MainPageState extends State<MainPage> {
                 title: const Text('Activity'),
               ),
               ListTile(
+                onTap: ()  {
+                 
+                },
+                leading: const Icon(Icons.logout),
+                title: const Text('About'),
+              ),
+              ListTile(
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
                   Navigator.of(context).push(MaterialPageRoute(

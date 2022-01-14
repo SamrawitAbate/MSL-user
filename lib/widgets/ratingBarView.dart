@@ -15,7 +15,7 @@ class RatingBarCustom extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return RatingBar.builder(
-              initialRating:  snapshot.data!['rate'],
+              initialRating: snapshot.data!['rate'] / 1.0,
               itemCount: 5,
               itemBuilder: (context, index) {
                 switch (index) {
@@ -54,8 +54,8 @@ class RatingBarCustom extends StatelessWidget {
               onRatingUpdate: (rating) {
                 if (true) {
                   setRating(rating, to);
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const Autenticate()));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const Autenticate()));
                 }
                 debugPrint(rating.toString());
               },

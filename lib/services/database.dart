@@ -23,8 +23,12 @@ Future<void> uploadProfile(String filepath) async {
   }
 }
 
-Future<bool> userSetup(String fullName, String email, String? address,
-    String dateOfBirth, String sex) async {
+Future<bool> userSetup(
+    {String? fullName,
+    String? email,
+    String? address,
+    Timestamp? dateOfBirth,
+    String? sex}) async {
   CollectionReference users = FirebaseFirestore.instance.collection('account');
   final snapShot = await FirebaseFirestore.instance
       .collection('account')
@@ -35,19 +39,21 @@ Future<bool> userSetup(String fullName, String email, String? address,
       FirebaseFirestore.instance.collection('userDetail');
   if (!snapShot.exists) {
     try {
-      user.doc(uid).set({'active': true, 'registeredDate': Timestamp.now()});
+      user.doc(uid).set({
+        'active': false,
+        'disable': false,
+        'registeredDate': Timestamp.now()
+      });
       rate.doc(uid).set({'value': 0, 'count': 0, 'rate': 0});
       users.doc(uid).set({
-        'fullName': fullName,
+        'fullName': '',
         'phoneNumber': FirebaseAuth.instance.currentUser!.phoneNumber,
-        'address': address,
+        'address': '',
         'photoUrl':
             'https://firebasestorage.googleapis.com/v0/b/maintenance-service-locator.appspot.com/o/img%2Fblank-profile.png?alt=media&token=758d9f6b-f5e1-4a7c-8df7-996d0e1e1136',
-        'email': email,
-        'dateOfBirth': dateOfBirth == ''
-            ? Timestamp.fromDate(DateTime(1000, 10, 10))
-            : dateOfBirth,
-        'sex': sex
+        'email': '',
+        'dateOfBirth': Timestamp.fromDate(DateTime(1000, 10, 10)),
+        'sex': ''
       }).then((value) {
         return true;
       }).onError((error, stackTrace) {
@@ -59,7 +65,7 @@ Future<bool> userSetup(String fullName, String email, String? address,
       return false;
     }
   } else {
-    if (dateOfBirth != '') {
+    if (dateOfBirth != Timestamp.fromDate(DateTime(1000, 10, 10))) {
       users.doc(uid).update({'dateOfBirth': dateOfBirth});
     }
     if (sex != '') {
@@ -74,7 +80,7 @@ Future<bool> userSetup(String fullName, String email, String? address,
     if (email != '') {
       users.doc(uid).update({'email': email});
     }
-
+    user.doc(uid).update({'active': true});
     return true;
   }
   return false;

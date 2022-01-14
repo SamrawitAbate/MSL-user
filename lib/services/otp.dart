@@ -61,7 +61,7 @@ class _OTPScreenState extends State<OTPScreen> {
                           verificationId: _verificationCode!, smsCode: pin))
                       .then((value) async {
                     if (value.user != null) {
-                      userSetup('', '', '', '', '');
+                      userSetup();
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
@@ -90,7 +90,7 @@ class _OTPScreenState extends State<OTPScreen> {
               .signInWithCredential(credential)
               .then((value) async {
             if (value.user != null) {
-              userSetup('', '', '', '','');
+              userSetup();
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const Autenticate()),
