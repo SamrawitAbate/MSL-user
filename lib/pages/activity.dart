@@ -184,12 +184,16 @@ class ActionSelection extends StatelessWidget {
       case 1:
         return Row(
           children: [
-            ElevatedButton(onPressed: () async {
-                  List v = popUp(context, 'Message');
-                  if (v[1]) {
-                    giveComment(v[0], uid);
-                  }
-                }, child: const Text('Comment')),
+            ElevatedButton(
+                onPressed: () async {
+                  popUp(context, 'Complain', id: uid);
+                },
+                child: const Text('Complain')),
+            ElevatedButton(
+                onPressed: () async {
+                  popUp(context, 'Comment', id: uid);
+                },
+                child: const Text('Comment')),
             ElevatedButton(
                 onPressed: () {
                   changeStatus(uid, 'Completed');
@@ -204,24 +208,28 @@ class ActionSelection extends StatelessWidget {
           children: [
             ElevatedButton(
                 onPressed: () async {
-                  List v = popUp(context, 'Message');
-                  if (v[1]) {
-                    giveComment(v[0], uid);
-                  }
+                  popUp(context, 'Complain', id: uid);
+                },
+                child: const Text('Complain')),
+            ElevatedButton(
+                onPressed: () async {
+                  popUp(context, 'Comment', id: uid);
                 },
                 child: const Text('Comment')),
-            ElevatedButton(onPressed: () {
-               showDialog(
+            ElevatedButton(
+                onPressed: () {
+                  showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
                             content: Center(
-                              child: RatingBarCustom(
-                          to: uid,
-                        ),
-                            ));
+                          child: RatingBarCustom(
+                            to: uid,
+                          ),
+                        ));
                       });
-            }, child: const Text('Rating')),
+                },
+                child: const Text('Rating')),
           ],
         );
       default:

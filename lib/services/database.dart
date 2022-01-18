@@ -50,7 +50,7 @@ Future<bool> userSetup(
         'phoneNumber': FirebaseAuth.instance.currentUser!.phoneNumber,
         'address': '',
         'photoUrl':
-            'https://firebasestorage.googleapis.com/v0/b/maintenance-service-locator.appspot.com/o/img%2Fblank-profile.png?alt=media&token=758d9f6b-f5e1-4a7c-8df7-996d0e1e1136',
+            'https://firebasestorage.googleapis.com/v0/b/maintenance-service-locator.appspot.com/o/img%2Favatar.png?alt=media&token=b5bd012f-d7eb-445a-a9ce-fe192b21cfeb',
         'email': '',
         'dateOfBirth': Timestamp.fromDate(DateTime(1000, 10, 10)),
         'sex': ''
@@ -95,7 +95,7 @@ Stream<QuerySnapshot> select(String status) {
   return activity;
 }
 
-Future<void> giveComment(String message, String to) async {
+Future<bool> giveComment(String message, String to) async {
   CollectionReference comment =
       FirebaseFirestore.instance.collection('comment');
   comment.add({
@@ -105,7 +105,25 @@ Future<void> giveComment(String message, String to) async {
     'time': Timestamp.now()
   }).then((_) {
     debugPrint('comment added successfully');
+    return true;
   });
+  return false;
+}
+
+Future<bool> giveComplain(String message, String to) async {
+  CollectionReference complain =
+      FirebaseFirestore.instance.collection('complain');
+  complain.add({
+    'from': uid,
+    'to': to,
+    'message': message,
+    'time': Timestamp.now(),
+    'who': 'Service Provider'
+  }).then((_) {
+    debugPrint('comment added successfully');
+    return true;
+  });
+  return false;
 }
 
 Future<void> setRating(double v, String to) async {
@@ -133,21 +151,27 @@ Future<void> changeStatus(String id, String status) async {
 }
 
 Future<bool> sendRequest(String id, String message, GeoPoint location) async {
-  bool sent = false;
-  String uid = FirebaseAuth.instance.currentUser!.uid;
-  DocumentSnapshot<Map<String, dynamic>> a =
-      await FirebaseFirestore.instance.collection('account').doc(uid).get();
-  FirebaseFirestore.instance.collection('activity').add({
-    'user_id': uid,
-    'name': a['fullName'],
-    'request_time': Timestamp.now(),
-    'job_description': message,
-    'skill_id': id,
-    'location': location,
-    'status': 'Requested'
-  }).then((value) {
-    debugPrint('Request sent');
-    sent = true;
-  });
-  return sent;
+  print('sendrequest / * / *' * 10);
+  try {
+    bool sent = false;
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    DocumentSnapshot<Map<String, dynamic>> a =
+        await FirebaseFirestore.instance.collection('account').doc(uid).get();
+    FirebaseFirestore.instance.collection('activity').add({
+      'user_id': uid,
+      'name': a['fullName'],
+      'request_time': Timestamp.now(),
+      'job_description': message,
+      'skill_id': id,
+      'location': location,
+      'status': 'Requested'
+    }).then((value) {
+      debugPrint('Request sent');
+      sent = true;
+    });
+    return sent;
+  } catch (e) {
+    print(e);
+    throw Exception(e);
+  }
 }

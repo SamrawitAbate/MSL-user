@@ -48,11 +48,11 @@ class _MapPageState extends State<MapPage> {
           }
           return Stack(
             children: [
-              StoreMap(
+              AppMap(
                   documents: snapshot.data!.docs,
                   initialPosition: widget.position,
                   mapController: _mapController),
-              StoreCaeousel(
+              AppCaeousel(
                   position: widget.position,
                   documents: snapshot.data!.docs,
                   mapController: _mapController),
@@ -62,8 +62,8 @@ class _MapPageState extends State<MapPage> {
   }
 }
 
-class StoreCaeousel extends StatefulWidget {
-  const StoreCaeousel(
+class AppCaeousel extends StatefulWidget {
+  const AppCaeousel(
       {Key? key,
       required this.position,
       required this.documents,
@@ -75,10 +75,10 @@ class StoreCaeousel extends StatefulWidget {
   final Completer<GoogleMapController> mapController;
 
   @override
-  State<StoreCaeousel> createState() => _StoreCaeouselState();
+  State<AppCaeousel> createState() => _AppCaeouselState();
 }
 
-class _StoreCaeouselState extends State<StoreCaeousel> {
+class _AppCaeouselState extends State<AppCaeousel> {
   List<DocumentSnapshot> destinationlist = [];
   List<DocumentSnapshot>? documents;
   Completer<GoogleMapController>? mapController;
@@ -137,6 +137,11 @@ class _StoreCaeouselState extends State<StoreCaeousel> {
         return a['distance'].compareTo(b['distance']);
       });
     });
+    if (destinationlist[0]['distance'] > 10000) {
+      setState(() {
+        destinationlist = [];
+      });
+    }
   }
 }
 
@@ -155,7 +160,6 @@ class StoreListTile extends StatefulWidget {
 }
 
 class _StoreListTileState extends State<StoreListTile> {
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -164,16 +168,10 @@ class _StoreListTileState extends State<StoreListTile> {
       trailing: IconButton(
         icon: const Icon(Icons.handyman),
         onPressed: () async {
-          List v = popUp(context, 'Jop Description');
-          if (v[1]) {
-            bool sent=sendRequest(widget.document.id,v[0],
-                GeoPoint(
-                    widget.position.latitude, widget.position.longitude)) as bool;
-            if(sent){
-               ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('Request Sent')));
-            }
-          }
+          popUp(context, 'Jop Description',
+              id: widget.document.id,
+              loc: GeoPoint(
+                  widget.position.latitude, widget.position.longitude));
         },
       ),
       onTap: () async {
@@ -191,8 +189,8 @@ class _StoreListTileState extends State<StoreListTile> {
   }
 }
 
-class StoreMap extends StatelessWidget {
-  const StoreMap(
+class AppMap extends StatelessWidget {
+  const AppMap(
       {Key? key,
       required this.documents,
       required this.mapController,
