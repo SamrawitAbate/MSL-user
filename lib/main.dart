@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:user/services/auth.dart';
+import 'package:user/widgets/loading.dart';
 import '../services/location.dart';
 
 void main() {
@@ -25,19 +26,9 @@ class _AppState extends State<App> {
   bool connection = true;
   Future<void> _checkConnectivityState() async {
     final ConnectivityResult result = await Connectivity().checkConnectivity();
-    bool c = true;
-    if (result == ConnectivityResult.wifi) {
-      debugPrint('Connected to a Wi-Fi network');
-      c = true;
-    } else if (result == ConnectivityResult.mobile) {
-      debugPrint('Connected to a mobile network');
-      c = true;
-    } else {
-      debugPrint('Not connected to any network');
-      c = false;
-    }
+   
     setState(() {
-      connection = c;
+      connection = result == ConnectivityResult.wifi||result == ConnectivityResult.mobile?true:false;
     });
   }
 
@@ -81,7 +72,7 @@ class _AppState extends State<App> {
         if (snapshot.connectionState == ConnectionState.done) {
           return const Autenticate();
         }
-        return const Center(child: Icon(Icons.circle_outlined));
+        return const Loading();
       },
     );
   }

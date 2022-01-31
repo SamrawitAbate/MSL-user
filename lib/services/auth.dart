@@ -7,14 +7,9 @@ import 'package:user/pages/login.dart';
 import 'package:user/pages/mainPage.dart';
 import 'package:user/widgets/loading.dart';
 
-class Autenticate extends StatefulWidget {
+class Autenticate extends StatelessWidget {
   const Autenticate({Key? key}) : super(key: key);
-  @override
-  _AutenticateState createState() => _AutenticateState();
-}
 
-class _AutenticateState extends State<Autenticate> {
-  bool auth = false;
    Future<bool> active() async {
     final value = await FirebaseFirestore.instance
         .collection('userDetail')

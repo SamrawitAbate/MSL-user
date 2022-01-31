@@ -36,10 +36,12 @@ class _LoginState extends State<Login> {
                     child: TextField(
                       decoration: const InputDecoration(
                         hintText: 'Phone Number',
+                        labelStyle: TextStyle(letterSpacing: 8),
                         prefix: Padding(
                           padding: EdgeInsets.all(4),
                           child: Text('+251'),
                         ),
+                        
                       ),
                       maxLength: 9,
                       keyboardType: TextInputType.number,

@@ -3,13 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:user/services/auth.dart';
 import 'package:user/services/database.dart';
+import 'package:user/widgets/changePhoto.dart';
 import 'package:user/widgets/loading.dart';
 
 enum Gender { male, female }
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key}) : super(key: key);
-
   @override
   State<AccountPage> createState() => _AccountPageState();
 }
@@ -17,55 +17,51 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> with InputValidationMixin {
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  String fullName = '',
-      email = '',
-      sex = '',
-      address = '',
-      password = '';
+  String fullName = '', email = '', sex = '', address = '', password = '';
   final formGlobalKey = GlobalKey<FormState>();
   Gender? _character = Gender.female;
   DateTime selectedDate = DateTime.now();
 
-  Future<void> _selectDate(BuildContext context) async {
-    await showDatePicker(
-            context: context,
-            initialDate: selectedDate,
-            firstDate: DateTime(1950),
-            lastDate: DateTime(2222))
-        .then((picked) {
-      if (picked != null && picked != selectedDate) {
-        setState(() {
-          selectedDate = picked;
-        });
-      }
-      return;
-    });
-  }
-
+  bool first = true;
   String ageMessage = '';
   @override
   Widget build(BuildContext context) {
     const TextStyle st = TextStyle(fontSize: 20, fontWeight: FontWeight.w500);
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const Autenticate()));
+              },
+              icon: const Icon(Icons.logout),
+            ),
+          ],
+        ),
         body: StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('account')
                 .doc(uid)
                 .snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.hasError) {
                 return Text('Error = ${snapshot.error}');
               }
-
               if (snapshot.hasData) {
                 var data = snapshot.data!;
-                if (data['dateOfBirth'] !=
-                    Timestamp.fromDate(DateTime(1000, 10, 10))) {
-                  //   setState(() {
+                if (first &&
+                    data['dateOfBirth'] !=
+                        Timestamp.fromDate(DateTime(1000, 10, 10))) {
                   selectedDate = data['dateOfBirth'].toDate();
-                  //   });
+                }
+                if (first) {
+                  _character =
+                      data['sex'] == 'Male' ? Gender.male : Gender.female;
+                  first = false;
                 }
                 return Form(
                     key: formGlobalKey,
@@ -74,8 +70,11 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                         children: [
                           const Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text('Account', style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700)),
+                            child: Text('Account',
+                                style: TextStyle(
+                                    fontSize: 30, fontWeight: FontWeight.w700)),
                           ),
+                          ChangePhoto(img: data['photoUrl'], my: true),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
@@ -135,12 +134,11 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                               ],
                             ),
                           ),
-                          //////
-                          ///
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: <Widget>[
                                   Row(
                                     children: [
@@ -150,14 +148,9 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                                   ),
                                 ]),
                           ),
-
-                          ///
-                          //////
-                          ///
                           Wrap(
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: <Widget>[
-                              // Text("${selectedDate.toLocal()}".split(' ')[0]),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
@@ -169,11 +162,26 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                                 height: 20.0,
                               ),
                               OutlinedButton(
-                                onPressed: () => _selectDate(context),
+                                onPressed: () async {
+                                  await showDatePicker(
+                                          context: context,
+                                          initialDate: selectedDate,
+                                          firstDate: DateTime(1950),
+                                          lastDate: DateTime.now())
+                                      .then((value) {
+                                    if (value != null &&
+                                        value != selectedDate) {
+                                      setState(() {
+                                        selectedDate = value;
+                                      });
+                                    }
+                                  });
+                                },
                                 child: const Text(
-                                  'Select date',
+                                  'Select DOB',
                                   style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.w600),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ),
                               Text(
@@ -182,8 +190,6 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                               ),
                             ],
                           ),
-
-                          ///
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFormField(
@@ -214,22 +220,21 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                               ),
                               onPressed: () {
                                 if (formGlobalKey.currentState!.validate()) {
-                                  if ((DateTime.now().year - selectedDate.year) >
+                                  if ((DateTime.now().year -
+                                          selectedDate.year) >
                                       5) {
                                     setState(() {
                                       ageMessage = '';
                                     });
-
                                     formGlobalKey.currentState!.save();
-                                    // use the email provided here
                                     userSetup(
+                                            otp: false,
                                             fullName: fullName,
                                             email: email,
                                             address: address,
-                                            dateOfBirth:
-                                                Timestamp.fromDate(selectedDate),
-                                            sex: Gender.female ==
-                                                    _character
+                                            dateOfBirth: Timestamp.fromDate(
+                                                selectedDate),
+                                            sex: Gender.female == _character
                                                 ? 'Female'
                                                 : 'Male')
                                         .then((value) {
@@ -238,11 +243,11 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   const Autenticate()));
+                                     ScaffoldMessenger.of(context)
+           .showSnackBar( SnackBar(content:Text(
                                       value
-                                          ? const SnackBar(
-                                              content: Text('Updated'))
-                                          : const SnackBar(
-                                              content: Text('Update failed'));
+                                          ? 'Updated'
+                                          : 'Update failed')));
                                     });
                                   } else {
                                     setState(() {

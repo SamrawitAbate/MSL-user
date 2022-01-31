@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:user/pages/profile.dart';
 import 'package:user/services/database.dart';
 import 'package:user/widgets/loading.dart';
 import 'package:user/widgets/ratingBarView.dart';
@@ -67,7 +68,7 @@ class _ActivityPageState extends State<ActivityPage> {
             if (!snapshot.hasData) {
               return const Loading();
             }
-            return StoreCaeousel(
+            return AppCaeousel(
               indexValue: indexValue,
               documents: snapshot.data!.docs,
             );
@@ -76,8 +77,8 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 }
 
-class StoreCaeousel extends StatelessWidget {
-  const StoreCaeousel(
+class AppCaeousel extends StatelessWidget {
+  const AppCaeousel(
       {Key? key, required this.documents, required this.indexValue})
       : super(key: key);
   final List<DocumentSnapshot> documents;
@@ -118,7 +119,7 @@ class StoreCaeousel extends StatelessWidget {
                       padding: const EdgeInsets.only(left: 8),
                       child: Card(
                           child: Center(
-                              child: StoreListTile(
+                              child: AppListTile(
                         indexValue: indexValue,
                         document: documents[index],
                       )))));
@@ -126,38 +127,69 @@ class StoreCaeousel extends StatelessWidget {
   }
 }
 
-class StoreListTile extends StatefulWidget {
-  const StoreListTile(
+class AppListTile extends StatelessWidget {
+  const AppListTile(
       {Key? key, required this.document, required this.indexValue})
       : super(key: key);
   final DocumentSnapshot document;
   final int indexValue;
-  @override
-  _StoreListTileState createState() => _StoreListTileState();
-}
 
-class _StoreListTileState extends State<StoreListTile> {
-  // TextEditingController jobDescription = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
+           StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('account')
+                  .doc(document['skill_id'])
+                  .snapshots(),
+              builder:
+                  (BuildContext context, AsyncSnapshot<DocumentSnapshot> snap) {
+                if (snap.hasError) return Text('Error = ${snap.error}');
+
+                if (snap.hasData) {
+                  var data = snap.data!;
+                  return Row(
+                    children: [
+                      InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProfilePage(
+                                        my: false,
+                                        user: true,
+                                        uid: document['user_id'])));
+                          },
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(data['photoUrl']),
+                          )),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          data['fullName'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 25),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return Container();
+              }),
           Text(
-            widget.document['user_id'],
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-          ),
-          Text(
-            widget.document['job_description'],
+            document['job_description'],
             style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
           ),
           Text(
-            widget.document['request_time'].toDate().toString(),
+            document['request_time'].toDate().toString(),
             style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
           ),
           ActionSelection(
-              indexValue: widget.indexValue, uid: widget.document.id),
+              indexValue: indexValue, uid: document['skill_id']),
         ],
       ),
     );
@@ -175,30 +207,42 @@ class ActionSelection extends StatelessWidget {
       case 0:
         return Align(
           alignment: Alignment.bottomRight,
-          child: ElevatedButton(
-              onPressed: () {
-                changeStatus(uid, 'Cancle');
-              },
-              child: const Text('Cancle')),
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: ElevatedButton(
+                onPressed: () {
+                  changeStatus(uid, 'Cancle');
+                },
+                child: const Text('Cancle')),
+          ),
         );
       case 1:
         return Row(
           children: [
-            ElevatedButton(
-                onPressed: () async {
-                  popUp(context, 'Complain', id: uid);
-                },
-                child: const Text('Complain')),
-            ElevatedButton(
-                onPressed: () async {
-                  popUp(context, 'Comment', id: uid);
-                },
-                child: const Text('Comment')),
-            ElevatedButton(
-                onPressed: () {
-                  changeStatus(uid, 'Completed');
-                },
-                child: const Text('Complete')),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    popUp(context, 'Complain', id: uid);
+                  },
+                  child: const Text('Complain')),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    popUp(context, 'Comment', id: uid);
+                  },
+                  child: const Text('Comment')),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    changeStatus(uid, 'Completed');
+                  },
+                  child: const Text('Complete')),
+            ),
           ],
         );
       case 2:
@@ -206,30 +250,39 @@ class ActionSelection extends StatelessWidget {
       case 3:
         return Row(
           children: [
-            ElevatedButton(
-                onPressed: () async {
-                  popUp(context, 'Complain', id: uid);
-                },
-                child: const Text('Complain')),
-            ElevatedButton(
-                onPressed: () async {
-                  popUp(context, 'Comment', id: uid);
-                },
-                child: const Text('Comment')),
-            ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                            content: Center(
-                          child: RatingBarCustom(
-                            to: uid,
-                          ),
-                        ));
-                      });
-                },
-                child: const Text('Rating')),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    popUp(context, 'Complain', id: uid);
+                  },
+                  child: const Text('Complain')),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    popUp(context, 'Comment', id: uid);
+                  },
+                  child: const Text('Comment')),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              content: Center(
+                            child: RatingBarCustom(
+                              to: uid,
+                            ),
+                          ));
+                        });
+                  },
+                  child: const Text('Rating')),
+            ),
           ],
         );
       default:

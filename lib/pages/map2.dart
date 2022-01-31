@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:user/services/database.dart';
+import 'package:user/pages/profile.dart';
 import 'package:user/widgets/loading.dart';
 import 'package:user/widgets/showAlertialog.dart';
 
@@ -102,7 +102,6 @@ class _AppCaeouselState extends State<AppCaeousel> {
                   scrollDirection: Axis.horizontal,
                   itemCount: widget.documents.length,
                   itemBuilder: (context, index) {
-                    debugPrint('*-*' * 8);
                     debugPrint(destinationlist.toString());
                     return destinationlist.isEmpty
                         ? const SizedBox()
@@ -115,7 +114,6 @@ class _AppCaeouselState extends State<AppCaeousel> {
                                         child: StoreListTile(
                                             position: widget.position,
                                             document: destinationlist[index],
-                                            // document: widget.documents[index],
                                             mapController:
                                                 widget.mapController)))));
                   })),
@@ -123,10 +121,7 @@ class _AppCaeouselState extends State<AppCaeousel> {
   }
 
   distanceCalculation(LatLng position) {
-    debugPrint('**--**..' * 8);
     for (var d in documents!) {
-      debugPrint('**--**' * 8);
-      debugPrint(d['location'].latitude.toString());
       var m = Geolocator.distanceBetween(position.latitude, position.longitude,
           d['location'].latitude, d['location'].longitude);
       d['distance'] != m / 1000;
@@ -145,7 +140,7 @@ class _AppCaeouselState extends State<AppCaeousel> {
   }
 }
 
-class StoreListTile extends StatefulWidget {
+class StoreListTile extends StatelessWidget {
   const StoreListTile(
       {Key? key,
       required this.document,
@@ -155,32 +150,39 @@ class StoreListTile extends StatefulWidget {
   final DocumentSnapshot document;
   final Completer<GoogleMapController> mapController;
   final LatLng position;
-  @override
-  _StoreListTileState createState() => _StoreListTileState();
-}
 
-class _StoreListTileState extends State<StoreListTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(widget.document['name']),
-      subtitle: Text(widget.document['skill']),
+      leading: InkWell(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfilePage(my: false, user: false, uid: document.id)));
+          },
+          child: CircleAvatar(
+            radius: 30,
+            backgroundImage: NetworkImage(document['photoUrl']),
+          )),
+      title: Text(document['name']),
+      subtitle: Text(document['skill']),
       trailing: IconButton(
         icon: const Icon(Icons.handyman),
         onPressed: () async {
           popUp(context, 'Jop Description',
-              id: widget.document.id,
-              loc: GeoPoint(
-                  widget.position.latitude, widget.position.longitude));
+              id: document.id,
+              loc: GeoPoint(position.latitude, position.longitude));
         },
       ),
       onTap: () async {
-        final controller = await widget.mapController.future;
+        final controller = await mapController.future;
         await controller
             .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
                 target: LatLng(
-                  widget.document['location'].latitude,
-                  widget.document['location'].longitude,
+                  document['location'].latitude,
+                  document['location'].longitude,
                 ),
                 zoom: 19,
                 tilt: 45)));

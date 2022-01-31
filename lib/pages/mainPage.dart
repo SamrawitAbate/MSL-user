@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -127,10 +129,12 @@ class _MainPageState extends State<MainPage> {
                 title: const Text('Activity'),
               ),
               ListTile(
-                onTap: ()  {
-                 
+                onTap: () {
+                  showAboutDialog(
+                      context: context,
+                      applicationName: 'Maintenance Service Locator');
                 },
-                leading: const Icon(Icons.logout),
+                leading: const Icon(Icons.info),
                 title: const Text('About'),
               ),
               ListTile(
@@ -152,7 +156,7 @@ class _MainPageState extends State<MainPage> {
                   margin: const EdgeInsets.symmetric(
                     vertical: 16.0,
                   ),
-                  child: const Text('Terms of Service | Privacy Policy'),
+                  child: const Text('MAINTENANCE SERVICE LOCATOR | USER'),
                 ),
               ),
             ],
@@ -172,6 +176,7 @@ class _MainPageState extends State<MainPage> {
         MapPage(position: cPosition),
         const ActivityPage(),
         ProfilePage(
+          user: true,
           my: true,
           uid: uid,
         )
@@ -180,8 +185,6 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _handleMenuButtonPressed() {
-    // NOTICE: Manage Advanced Drawer state through the Controller.
-    // _advancedDrawerController.value = AdvancedDrawerValue.visible();
     _advancedDrawerController.showDrawer();
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -47,10 +46,6 @@ Future<void> getPermision() async {
 Future<LatLng> getUserLocation() async {
   Position currentLocation = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best);
-  LatLng _center = LatLng(currentLocation.latitude, currentLocation.longitude);
+  return LatLng(currentLocation.latitude, currentLocation.longitude);
 
-  debugPrint('************');
-  debugPrint(currentLocation.toString());
-  debugPrint('center $_center');
-  return _center;
 }

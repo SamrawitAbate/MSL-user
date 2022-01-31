@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 FirebaseAuth auth = FirebaseAuth.instance;
+  final firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
 
 String? uid = auth.currentUser!.uid;
 Future<void> uploadProfile(String filepath) async {
-  final firebase_storage.FirebaseStorage storage =
-      firebase_storage.FirebaseStorage.instance;
   CollectionReference users = FirebaseFirestore.instance.collection('account');
   File file = File(filepath);
   try {
@@ -24,45 +24,44 @@ Future<void> uploadProfile(String filepath) async {
 }
 
 Future<bool> userSetup(
-    {String? fullName,
+    {required bool otp,
+    String? fullName,
     String? email,
     String? address,
     Timestamp? dateOfBirth,
     String? sex}) async {
   CollectionReference users = FirebaseFirestore.instance.collection('account');
-  final snapShot = await FirebaseFirestore.instance
-      .collection('account')
-      .doc(uid) // varuId in your case
-      .get();
+  final snapShot =
+      await FirebaseFirestore.instance.collection('account').doc(uid).get();
   CollectionReference rate = FirebaseFirestore.instance.collection('rate');
   CollectionReference user =
       FirebaseFirestore.instance.collection('userDetail');
-  if (!snapShot.exists) {
-    try {
-      user.doc(uid).set({
-        'active': false,
-        'disable': false,
-        'registeredDate': Timestamp.now()
-      });
-      rate.doc(uid).set({'value': 0, 'count': 0, 'rate': 0});
-      users.doc(uid).set({
-        'fullName': '',
-        'phoneNumber': FirebaseAuth.instance.currentUser!.phoneNumber,
-        'address': '',
-        'photoUrl':
-            'https://firebasestorage.googleapis.com/v0/b/maintenance-service-locator.appspot.com/o/img%2Favatar.png?alt=media&token=b5bd012f-d7eb-445a-a9ce-fe192b21cfeb',
-        'email': '',
-        'dateOfBirth': Timestamp.fromDate(DateTime(1000, 10, 10)),
-        'sex': ''
-      }).then((value) {
-        return true;
-      }).onError((error, stackTrace) {
-        debugPrint(error.toString());
+  if (otp) {
+    if (!snapShot.exists) {
+      try {
+        user.doc(uid).set({
+          'active': false,
+          'disable': false,
+          'registeredDate': Timestamp.now()
+        });
+        rate.doc(uid).set({'value': 0, 'count': 0, 'rate': 0});
+        users.doc(uid).set({
+          'fullName': '',
+          'phoneNumber': FirebaseAuth.instance.currentUser!.phoneNumber,
+          'address': '',
+          'photoUrl':
+              'https://firebasestorage.googleapis.com/v0/b/maintenance-service-locator.appspot.com/o/img%2Favatar.png?alt=media&token=b5bd012f-d7eb-445a-a9ce-fe192b21cfeb',
+          'email': '',
+          'dateOfBirth': Timestamp.fromDate(DateTime(1000, 10, 10)),
+          'sex': ''
+        }).then((value) {
+          return true;
+        }).onError((error, stackTrace) {
+          throw (Exception(error));
+        });
+      } catch (e) {
         return false;
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-      return false;
+      }
     }
   } else {
     if (dateOfBirth != Timestamp.fromDate(DateTime(1000, 10, 10))) {
@@ -87,12 +86,11 @@ Future<bool> userSetup(
 }
 
 Stream<QuerySnapshot> select(String status) {
-  Stream<QuerySnapshot> activity = FirebaseFirestore.instance
+  return FirebaseFirestore.instance
       .collection('activity')
       .where('user_id', isEqualTo: uid)
       .where('status', isEqualTo: status)
       .snapshots();
-  return activity;
 }
 
 Future<bool> giveComment(String message, String to) async {
@@ -104,7 +102,6 @@ Future<bool> giveComment(String message, String to) async {
     'message': message,
     'time': Timestamp.now()
   }).then((_) {
-    debugPrint('comment added successfully');
     return true;
   });
   return false;
@@ -120,7 +117,6 @@ Future<bool> giveComplain(String message, String to) async {
     'time': Timestamp.now(),
     'who': 'Service Provider'
   }).then((_) {
-    debugPrint('comment added successfully');
     return true;
   });
   return false;
@@ -134,10 +130,9 @@ Future<void> setRating(double v, String to) async {
     value = va['value'] + v;
     count = va['count'] + 1;
   });
-  rate.doc(to).update(
-      {'value': value, 'count': count, 'rate': value! / count!}).then((_) {
-    debugPrint('rate added successfully');
-  });
+  rate
+      .doc(to)
+      .update({'value': value, 'count': count, 'rate': value! / count!});
 }
 
 Future<void> changeStatus(String id, String status) async {
@@ -145,13 +140,10 @@ Future<void> changeStatus(String id, String status) async {
 
   rate.doc(id).update({
     'status': status,
-  }).then((_) {
-    debugPrint('status changed successfully');
   });
 }
 
 Future<bool> sendRequest(String id, String message, GeoPoint location) async {
-  print('sendrequest / * / *' * 10);
   try {
     bool sent = false;
     String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -171,7 +163,11 @@ Future<bool> sendRequest(String id, String message, GeoPoint location) async {
     });
     return sent;
   } catch (e) {
-    print(e);
     throw Exception(e);
   }
+}
+Future<firebase_storage.ListResult> listFiles(String dir,String id) async {
+  firebase_storage.ListResult result = await storage.ref('$dir/$id').listAll();
+ 
+  return result;
 }

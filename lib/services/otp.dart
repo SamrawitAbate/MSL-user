@@ -12,7 +12,8 @@ class OTPScreen extends StatefulWidget {
 }
 
 class _OTPScreenState extends State<OTPScreen> {
-  String? _verificationCode;
+  late String _verificationCode;
+   String message='';
   final TextEditingController _pinPutController = TextEditingController();
   final FocusNode _pinPutFocusNode = FocusNode();
   final BoxDecoration pinPutDecoration = BoxDecoration(
@@ -24,7 +25,6 @@ class _OTPScreenState extends State<OTPScreen> {
   );
   @override
   Widget build(BuildContext context) {
-    debugPrint('*-*OTP' * 10);
     return Scaffold(
       appBar: AppBar(
         title: const Text('OTP Verification'),
@@ -58,10 +58,10 @@ class _OTPScreenState extends State<OTPScreen> {
                 try {
                   await FirebaseAuth.instance
                       .signInWithCredential(PhoneAuthProvider.credential(
-                          verificationId: _verificationCode!, smsCode: pin))
+                          verificationId: _verificationCode, smsCode: pin))
                       .then((value) async {
                     if (value.user != null) {
-                      userSetup();
+                      userSetup(otp: true);
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
@@ -76,42 +76,73 @@ class _OTPScreenState extends State<OTPScreen> {
                 }
               },
             ),
-          )
+          ),
+          Text(message)
         ],
       ),
     );
   }
 
   _verifyPhone() async {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: '+251${widget.phone}',
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseAuth.instance
-              .signInWithCredential(credential)
-              .then((value) async {
-            if (value.user != null) {
-              userSetup();
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Autenticate()),
-                  (route) => false);
-            }
-          });
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          debugPrint(e.message);
-        },
-        codeSent: (String verficationID, int? resendToken) {
-          setState(() {
-            _verificationCode = verficationID;
-          });
-        },
-        codeAutoRetrievalTimeout: (String verificationID) {
-          setState(() {
-            _verificationCode = verificationID;
-          });
-        },
-        timeout: const Duration(seconds: 120));
+   
+        
+    PhoneVerificationCompleted verificationCompleted;
+    PhoneVerificationFailed verificationFailed;
+    PhoneCodeSent codeSent;
+    PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout;
+    
+    verificationCompleted =
+        (PhoneAuthCredential phoneAuthCredential) async {
+       await FirebaseAuth.instance
+          .signInWithCredential(phoneAuthCredential)
+          .then((value) async {
+        if (value.user != null) {
+          userSetup(otp: true);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const Autenticate()),
+              (route) => false);
+        }
+      });
+        ScaffoldMessenger.of(context)
+          .showSnackBar( SnackBar(content:Text(
+          'Phone number automatically verified and user signed in: $phoneAuthCredential')));
+    };
+
+    verificationFailed =
+        (FirebaseAuthException authException) {
+      setState(() {
+        message =
+            'Phone number verification failed. Code: ${authException.code}. '
+            'Message: ${authException.message}';
+      });
+    };
+
+    codeSent =
+        (String verificationId, [int? forceResendingToken]) async {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content:Text( 'Please check your phone for the verification code.')));
+
+      _verificationCode = verificationId;
+    };
+
+    codeAutoRetrievalTimeout =
+        (String verificationId) {
+      _verificationCode = verificationId;
+    };
+
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+          phoneNumber: '+251${widget.phone}',
+          timeout: const Duration(seconds: 120),
+          verificationCompleted: verificationCompleted,
+          verificationFailed: verificationFailed,
+          codeSent: codeSent,
+          codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar( SnackBar(content:Text('Failed to Verify Phone Number: $e')));
+    }
   }
 
   @override
