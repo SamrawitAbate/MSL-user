@@ -217,7 +217,7 @@ class ActionSelection extends StatelessWidget {
           ),
         );
       case 1:
-        return Row(
+        return Wrap(
           children: [
             Padding(
               padding: const EdgeInsets.all(5.0),
@@ -248,7 +248,7 @@ class ActionSelection extends StatelessWidget {
       case 2:
         return Container();
       case 3:
-        return Row(
+        return Wrap(
           children: [
             Padding(
               padding: const EdgeInsets.all(5.0),
@@ -276,7 +276,7 @@ class ActionSelection extends StatelessWidget {
                           return AlertDialog(
                               content: Center(
                             child: RatingBarCustom(
-                              to: uid,
+                              to: uid,rate: true,my: false,
                             ),
                           ));
                         });

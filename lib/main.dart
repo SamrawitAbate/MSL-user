@@ -9,7 +9,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Maintenance service locator',
+      title: 'MSL',
       theme: ThemeData(brightness: Brightness.dark, fontFamily: 'Numans'),
       home: const App()));
 }

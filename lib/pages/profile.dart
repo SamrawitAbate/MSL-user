@@ -57,7 +57,7 @@ class ProfilePage extends StatelessWidget {
                                 const SizedBox(
                                   height: 10.0,
                                 ),
-                                RatingBarCustom(to: uid)
+                                RatingBarCustom(to: uid,rate: false,my: my,)
                               ],
                             ),
                             const Divider(),

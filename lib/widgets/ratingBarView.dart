@@ -7,13 +7,16 @@ import 'package:user/services/auth.dart';
 import 'package:user/services/database.dart';
 
 class RatingBarCustom extends StatelessWidget {
-  const RatingBarCustom({Key? key, required this.to}) : super(key: key);
+  const RatingBarCustom({Key? key, required this.to, required this.rate,required this.my})
+      : super(key: key);
   final String to;
+  final bool rate;
+  final bool my;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        future: FirebaseFirestore.instance.collection('rate').doc(to).get(),
+        future: FirebaseFirestore.instance.collection(my?'CRate':'SPRate').doc(to).get(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return RatingBar.builder(
@@ -54,7 +57,7 @@ class RatingBarCustom extends StatelessWidget {
                 }
               },
               onRatingUpdate: (rating) {
-                if (true) {
+                if (rate) {
                   setRating(rating, to);
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => const Autenticate()));

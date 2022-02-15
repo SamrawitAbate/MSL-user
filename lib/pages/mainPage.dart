@@ -87,76 +87,93 @@ class _MainPageState extends State<MainPage> {
         child: ListTileTheme(
           textColor: Colors.white,
           iconColor: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
+          child: Stack(
             children: [
-              Container(
-                width: 128.0,
-                height: 128.0,
-                margin: const EdgeInsets.only(
-                  top: 24.0,
-                  bottom: 64.0,
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Divider(),
+                    Container(
+                      width: 128.0,
+                      height: 128.0,
+                      margin: const EdgeInsets.only(
+                        top: 24.0,
+                        bottom: 24.0,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: const BoxDecoration(
+                        color: Colors.black26,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset('assets/img/tech.png'),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        _advancedDrawerController.toggleDrawer();
+                        onTap(0);
+                      },
+                      leading: const Icon(Icons.home),
+                      title: const Text('Home'),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        _advancedDrawerController.toggleDrawer();
+                        onTap(2);
+                      },
+                      leading: const Icon(Icons.account_circle_rounded),
+                      title: const Text('Profile'),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        _advancedDrawerController.toggleDrawer();
+                        onTap(1);
+                      },
+                      leading: const Icon(Icons.task_rounded),
+                      title: const Text('Activity'),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        showAboutDialog(
+                            context: context,
+                            applicationName: 'MSL',
+                            applicationVersion: '1.0.0',
+                            children: [
+                              const Text(
+                                  'Maintenance Service Locator application for Customers'),
+                              const Text(
+                                  '\nThis version of MSL is compiled by \nMeareg Abate \nmearegabate@gmail.com'),
+                              const Text('2022-02-15')
+                            ]);
+                      },
+                      leading: const Icon(Icons.info),
+                      title: const Text('About'),
+                    ),
+                    ListTile(
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const Autenticate()));
+                      },
+                      leading: const Icon(Icons.logout),
+                      title: const Text('Log out'),
+                    ),
+                  ],
                 ),
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(
-                  color: Colors.black26,
-                  shape: BoxShape.circle,
-                ),
-                child: Image.asset('assets/img/tech.png'),
               ),
-              ListTile(
-                onTap: () {
-                  _advancedDrawerController.toggleDrawer();
-                  onTap(0);
-                },
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-              ),
-              ListTile(
-                onTap: () {
-                  _advancedDrawerController.toggleDrawer();
-                  onTap(2);
-                },
-                leading: const Icon(Icons.account_circle_rounded),
-                title: const Text('Profile'),
-              ),
-              ListTile(
-                onTap: () {
-                  _advancedDrawerController.toggleDrawer();
-                  onTap(1);
-                },
-                leading: const Icon(Icons.task_rounded),
-                title: const Text('Activity'),
-              ),
-              ListTile(
-                onTap: () {
-                  showAboutDialog(
-                      context: context,
-                      applicationName: 'Maintenance Service Locator');
-                },
-                leading: const Icon(Icons.info),
-                title: const Text('About'),
-              ),
-              ListTile(
-                onTap: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const Autenticate()));
-                },
-                leading: const Icon(Icons.logout),
-                title: const Text('Log out'),
-              ),
-              const Spacer(),
-              DefaultTextStyle(
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white54,
-                ),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 16.0,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: DefaultTextStyle(
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white54,
                   ),
-                  child: const Text('MAINTENANCE SERVICE LOCATOR | USER'),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                    ),
+                    child: const Text('MAINTENANCE SERVICE LOCATOR | USER'),
+                  ),
                 ),
               ),
             ],

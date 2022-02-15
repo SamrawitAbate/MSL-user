@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 FirebaseAuth auth = FirebaseAuth.instance;
-  final firebase_storage.FirebaseStorage storage =
-      firebase_storage.FirebaseStorage.instance;
-
+final firebase_storage.FirebaseStorage storage =
+    firebase_storage.FirebaseStorage.instance;
 String? uid = auth.currentUser!.uid;
+
 Future<void> uploadProfile(String filepath) async {
   CollectionReference users = FirebaseFirestore.instance.collection('account');
   File file = File(filepath);
@@ -31,13 +31,15 @@ Future<bool> userSetup(
     Timestamp? dateOfBirth,
     String? sex}) async {
   CollectionReference users = FirebaseFirestore.instance.collection('account');
-  final snapShot =
+  final snapShotAccount =
       await FirebaseFirestore.instance.collection('account').doc(uid).get();
-  CollectionReference rate = FirebaseFirestore.instance.collection('rate');
+  final snapShotDetail =
+      await FirebaseFirestore.instance.collection('userDetail').doc(uid).get();
+  CollectionReference rate = FirebaseFirestore.instance.collection('CRate');
   CollectionReference user =
       FirebaseFirestore.instance.collection('userDetail');
   if (otp) {
-    if (!snapShot.exists) {
+    if (!snapShotAccount.exists) {
       try {
         user.doc(uid).set({
           'active': false,
@@ -61,6 +63,15 @@ Future<bool> userSetup(
         });
       } catch (e) {
         return false;
+      }
+    } else {
+      if (!snapShotDetail.exists) {
+        user.doc(uid).set({
+          'active': false,
+          'disable': false,
+          'registeredDate': Timestamp.now()
+        });
+        rate.doc(uid).set({'value': 0, 'count': 0, 'rate': 0});
       }
     }
   } else {
@@ -123,16 +134,16 @@ Future<bool> giveComplain(String message, String to) async {
 }
 
 Future<void> setRating(double v, String to) async {
-  CollectionReference rate = FirebaseFirestore.instance.collection('rate');
-  double? value;
-  int? count;
-  rate.doc(uid).get().then((va) {
-    value = va['value'] + v;
-    count = va['count'] + 1;
+  CollectionReference rate = FirebaseFirestore.instance.collection('SPRate');
+  late double value, count;
+  await rate.doc(to).get().then((x) {
+    value = x['value'] + v;
+    count = x['count'] + 1.0;
   });
-  rate
-      .doc(to)
-      .update({'value': value, 'count': count, 'rate': value! / count!});
+
+  double r = value / count;
+
+  await rate.doc(to).set({'value': value, 'count': count, 'rate': r});
 }
 
 Future<void> changeStatus(String id, String status) async {
@@ -166,8 +177,9 @@ Future<bool> sendRequest(String id, String message, GeoPoint location) async {
     throw Exception(e);
   }
 }
-Future<firebase_storage.ListResult> listFiles(String dir,String id) async {
+
+Future<firebase_storage.ListResult> listFiles(String dir, String id) async {
   firebase_storage.ListResult result = await storage.ref('$dir/$id').listAll();
- 
+
   return result;
 }

@@ -41,7 +41,6 @@ class _LoginState extends State<Login> {
                           padding: EdgeInsets.all(4),
                           child: Text('+251'),
                         ),
-                        
                       ),
                       maxLength: 9,
                       keyboardType: TextInputType.number,
@@ -54,8 +53,10 @@ class _LoginState extends State<Login> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => OTPScreen(controller.text)));
+                      if (controller.text.length == 9) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => OTPScreen(controller.text)));
+                      }
                     },
                     child: const Text(
                       'Next',

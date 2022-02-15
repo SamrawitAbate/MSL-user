@@ -31,18 +31,13 @@ class Autenticate extends StatelessWidget {
       return FutureBuilder<bool>(
         future: disable(),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-           if (snapshot.hasError) {
-              return Scaffold(
-                  body: Center(child: Text('Error ...${snapshot.error}')));
-            }
+        
             if (snapshot.hasData) {
               return snapshot.data! ? const DisablePage() : 
            FutureBuilder<bool>(
               future: active(),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                if (snapshot.hasError) {
-                  return  Scaffold(body: Center(child: Text('Error ...${snapshot.error}')));
-                }
+              
                 if (snapshot.hasData) {
                   return snapshot.data! ? const MainPage() : const AccountPage();
                 }

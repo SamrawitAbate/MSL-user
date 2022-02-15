@@ -238,16 +238,16 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
                                                 ? 'Female'
                                                 : 'Male')
                                         .then((value) {
-                                      Navigator.push(
+                                      Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   const Autenticate()));
-                                     ScaffoldMessenger.of(context)
-           .showSnackBar( SnackBar(content:Text(
-                                      value
-                                          ? 'Updated'
-                                          : 'Update failed')));
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(value
+                                                  ? 'Updated'
+                                                  : 'Update failed')));
                                     });
                                   } else {
                                     setState(() {
@@ -293,6 +293,7 @@ mixin InputValidationMixin {
 
   bool isEmailValid(String email) {
     RegExp regex = RegExp(
+        //r'/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/');
         r'^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
     return regex.hasMatch(email);
   }
