@@ -7,7 +7,8 @@ import 'package:user/services/auth.dart';
 import 'package:user/services/database.dart';
 
 class RatingBarCustom extends StatelessWidget {
-  const RatingBarCustom({Key? key, required this.to, required this.rate,required this.my})
+  const RatingBarCustom(
+      {Key? key, required this.to, required this.rate, required this.my})
       : super(key: key);
   final String to;
   final bool rate;
@@ -16,8 +17,21 @@ class RatingBarCustom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-        future: FirebaseFirestore.instance.collection(my?'CRate':'SPRate').doc(to).get(),
+        future: FirebaseFirestore.instance
+            .collection(my ? 'CRate' : 'SPRate')
+            .doc(to)
+            .get(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            debugPrint(snapshot.error.toString());
+            return Center(
+                child: Row(
+              children: [
+                const Icon(Icons.error),
+                Text(snapshot.error.toString(), maxLines: 3)
+              ],
+            ));
+          }
           if (snapshot.hasData) {
             return RatingBar.builder(
               initialRating: snapshot.data!['rate'] / 1.0,

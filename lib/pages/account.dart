@@ -49,7 +49,14 @@ class _AccountPageState extends State<AccountPage> with InputValidationMixin {
             builder: (BuildContext context,
                 AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.hasError) {
-                return Text('Error = ${snapshot.error}');
+                debugPrint(snapshot.error.toString());
+                return Center(
+                    child: Row(
+                  children: [
+                    const Icon(Icons.error),
+                    Text(snapshot.error.toString(), maxLines: 3)
+                  ],
+                ));
               }
               if (snapshot.hasData) {
                 var data = snapshot.data!;

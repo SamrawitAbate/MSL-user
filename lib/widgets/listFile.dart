@@ -19,6 +19,16 @@ class ListFile extends StatelessWidget {
         future: listFiles(dir, id),
         builder: (BuildContext context,
             AsyncSnapshot<firebase_storage.ListResult> snapshot) {
+          if (snapshot.hasError) {
+            debugPrint(snapshot.error.toString());
+            return Center(
+                child: Row(
+              children: [
+                const Icon(Icons.error),
+                Text(snapshot.error.toString(), maxLines: 3)
+              ],
+            ));
+          }
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
             return Container(
@@ -46,7 +56,7 @@ class ListFile extends StatelessWidget {
                         },
                         child: Text(
                           snapshot.data!.items[index].name,
-                          style:const TextStyle(fontSize: 18),
+                          style: const TextStyle(fontSize: 18),
                         ));
                   }),
             );

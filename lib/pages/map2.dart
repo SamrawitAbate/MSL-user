@@ -40,9 +40,15 @@ class _MapPageState extends State<MapPage> {
         stream: _iC,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            debugPrint(snapshot.error.toString());
+            return Center(
+                child: Row(
+              children: [
+                const Icon(Icons.error),
+                Text(snapshot.error.toString(), maxLines: 3)
+              ],
+            ));
           }
-
           if (!snapshot.hasData) {
             return const Loading();
           }

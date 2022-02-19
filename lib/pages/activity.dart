@@ -63,7 +63,14 @@ class _ActivityPageState extends State<ActivityPage> {
           stream: status![indexValue],
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
+              debugPrint(snapshot.error.toString());
+              return Center(
+                  child: Row(
+                children: [
+                  const Icon(Icons.error),
+                  Text(snapshot.error.toString(), maxLines: 3)
+                ],
+              ));
             }
             if (!snapshot.hasData) {
               return const Loading();
@@ -140,15 +147,23 @@ class AppListTile extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-           StreamBuilder<DocumentSnapshot>(
+          StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('account')
                   .doc(document['skill_id'])
                   .snapshots(),
               builder:
                   (BuildContext context, AsyncSnapshot<DocumentSnapshot> snap) {
-                if (snap.hasError) return Text('Error = ${snap.error}');
-
+                if (snap.hasError) {
+                  debugPrint(snap.error.toString());
+                  return Center(
+                      child: Row(
+                    children: [
+                      const Icon(Icons.error),
+                      Text(snap.error.toString(), maxLines: 3)
+                    ],
+                  ));
+                }
                 if (snap.hasData) {
                   var data = snap.data!;
                   return Row(
@@ -188,8 +203,7 @@ class AppListTile extends StatelessWidget {
             document['request_time'].toDate().toString(),
             style: const TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
           ),
-          ActionSelection(
-              indexValue: indexValue, uid: document['skill_id']),
+          ActionSelection(indexValue: indexValue, uid: document['skill_id']),
         ],
       ),
     );
@@ -276,7 +290,9 @@ class ActionSelection extends StatelessWidget {
                           return AlertDialog(
                               content: Center(
                             child: RatingBarCustom(
-                              to: uid,rate: true,my: false,
+                              to: uid,
+                              rate: true,
+                              my: false,
                             ),
                           ));
                         });

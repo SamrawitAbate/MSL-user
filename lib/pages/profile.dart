@@ -24,14 +24,21 @@ class ProfilePage extends StatelessWidget {
                   .snapshots(),
               builder: (BuildContext context,
                   AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (snapshot.hasError) return Text('Error = ${snapshot.error}');
-
+                if (snapshot.hasError) {
+                  debugPrint(snapshot.error.toString());
+                  return Center(
+                      child: Row(
+                    children: [
+                      const Icon(Icons.error),
+                      Text(snapshot.error.toString(), maxLines: 3)
+                    ],
+                  ));
+                }
                 if (snapshot.hasData) {
                   var data = snapshot.data!;
                   Timestamp ts = data['dateOfBirth'] as Timestamp;
                   DateTime dt = ts.toDate();
-                  bool empty = dt ==
-                    DateTime(1000, 10, 10) ? true : false;
+                  bool empty = dt == DateTime(1000, 10, 10) ? true : false;
                   return Stack(
                     children: [
                       SingleChildScrollView(
@@ -57,7 +64,11 @@ class ProfilePage extends StatelessWidget {
                                 const SizedBox(
                                   height: 10.0,
                                 ),
-                                RatingBarCustom(to: uid,rate: false,my: my,)
+                                RatingBarCustom(
+                                  to: uid,
+                                  rate: false,
+                                  my: my,
+                                )
                               ],
                             ),
                             const Divider(),
@@ -100,9 +111,15 @@ class ProfilePage extends StatelessWidget {
                                     .snapshots(),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
+                                    debugPrint(snapshot.error.toString());
                                     return Center(
-                                        child:
-                                            Text('Error: ${snapshot.error}'));
+                                        child: Row(
+                                      children: [
+                                        const Icon(Icons.error),
+                                        Text(snapshot.error.toString(),
+                                            maxLines: 3)
+                                      ],
+                                    ));
                                   }
                                   if (snapshot.hasData) {
                                     final List<DocumentSnapshot> documents =

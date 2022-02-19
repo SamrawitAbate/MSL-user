@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:user/services/auth.dart';
@@ -67,12 +69,17 @@ class _OTPScreenState extends State<OTPScreen> {
                                 smsCode: pin))
                             .then((value) async {
                           if (value.user != null) {
-                            userSetup(otp: true);
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Autenticate()),
-                                (route) => false);
+                            userSetup(otp: true).then((value) {
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const Autenticate()),
+                                  (route) => false);
+                            }).onError((error, stackTrace) {
+                              debugPrint(error.toString());
+                              exit(0);
+                            });
                           }
                         });
                       } catch (e) {
@@ -100,11 +107,15 @@ class _OTPScreenState extends State<OTPScreen> {
           .signInWithCredential(phoneAuthCredential)
           .then((value) async {
         if (value.user != null) {
-          userSetup(otp: true);
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const Autenticate()),
-              (route) => false);
+          userSetup(otp: true).then((value) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const Autenticate()),
+                (route) => false);
+          }).onError((error, stackTrace) {
+            debugPrint(error.toString());
+            exit(0);
+          });
         }
       });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -122,12 +133,11 @@ class _OTPScreenState extends State<OTPScreen> {
 
     codeSent = (String verificationId, [int? forceResendingToken]) async {
       _verificationCode = verificationId;
-       setState(() {
+      setState(() {
         sent = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Please check your phone for the verification code.')));
-
     };
 
     codeAutoRetrievalTimeout = (String verificationId) {
