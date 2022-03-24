@@ -10,7 +10,9 @@ void main() {
   runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'MSL Customer',
-      theme: ThemeData(brightness: Brightness.dark, fontFamily: 'Numans'),
+      theme: ThemeData(
+          brightness: Brightness.light,
+          fontFamily: 'Numans'),
       home: const App()));
 }
 
@@ -26,9 +28,12 @@ class _AppState extends State<App> {
   bool connection = true;
   Future<void> _checkConnectivityState() async {
     final ConnectivityResult result = await Connectivity().checkConnectivity();
-   
+
     setState(() {
-      connection = result == ConnectivityResult.wifi||result == ConnectivityResult.mobile?true:false;
+      connection = result == ConnectivityResult.wifi ||
+              result == ConnectivityResult.mobile
+          ? true
+          : false;
     });
   }
 
@@ -72,7 +77,7 @@ class _AppState extends State<App> {
                 child: Row(
               children: [
                 const Icon(Icons.error),
-                Text(snapshot.error.toString(),maxLines: 3)
+                Text(snapshot.error.toString(), maxLines: 3)
               ],
             )),
           );
